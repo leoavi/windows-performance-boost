@@ -154,7 +154,27 @@ foreach ($t in $junkTasks) {
 }
 
 # =============================================================================
-# 9. List startup programs (informational only)
+# 9. Disable NTFS last-access timestamp updates
+# =============================================================================
+Write-Host ""
+Write-Host "==> Disabling NTFS last-access timestamp updates" -ForegroundColor Cyan
+try {
+  fsutil behavior set DisableLastAccess 1 | Out-Null
+  Write-Host "  OK NTFS lastaccess disabled (less SSD wear)" -ForegroundColor Green
+} catch { Write-Host "  FAIL $($_.Exception.Message)" -ForegroundColor Red }
+
+# =============================================================================
+# 10. Disable WinSAT (weekly disk benchmark, pointless on modern SSDs)
+# =============================================================================
+Write-Host ""
+Write-Host "==> Disabling WinSAT scheduled task" -ForegroundColor Cyan
+try {
+  Disable-ScheduledTask -TaskPath '\Microsoft\Windows\Maintenance\' -TaskName 'WinSAT' -ErrorAction Stop | Out-Null
+  Write-Host "  OK WinSAT disabled" -ForegroundColor Green
+} catch { Write-Host "  FAIL $($_.Exception.Message)" -ForegroundColor Red }
+
+# =============================================================================
+# 11. List startup programs (informational only)
 # =============================================================================
 Write-Host ""
 Write-Host "==> Current startup programs (disable manually with Ctrl+Shift+Esc):" -ForegroundColor Cyan

@@ -107,7 +107,17 @@ try {
 } catch { Write-Host "  FAIL $($_.Exception.Message)" -ForegroundColor Red }
 
 # =============================================================================
-# 7. Re-enable all disabled scheduled tasks
+# 7. Restore NTFS last-access timestamp updates
+# =============================================================================
+Write-Host ""
+Write-Host "==> Restoring NTFS last-access updates" -ForegroundColor Cyan
+try {
+  fsutil behavior set DisableLastAccess 2 | Out-Null
+  Write-Host "  OK NTFS lastaccess restored to system-managed" -ForegroundColor Green
+} catch { Write-Host "  FAIL $($_.Exception.Message)" -ForegroundColor Red }
+
+# =============================================================================
+# 8. Re-enable all disabled scheduled tasks
 # =============================================================================
 Write-Host ""
 Write-Host "==> Re-enabling all disabled scheduled tasks" -ForegroundColor Cyan

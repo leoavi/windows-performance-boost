@@ -19,7 +19,19 @@ The scripts in this repo are **opinionated for one specific dev stack** (Node, P
 - **Claude Code** (or Codex, Cursor agent mode, or any AI with PowerShell execution)
 - **Windows 11** (most tweaks work on Win10 too)
 - **Admin password** — you'll need to accept UAC prompts
-- **Sudo for Windows** enabled (`Settings → System → For developers → Enable sudo → Inline mode`) so the agent can run elevated commands inline. This is the single biggest QoL improvement.
+
+### Critical: enable `sudo` in Inline mode
+
+This is **the single most important setup step**. Without it, every elevated command requires opening a new admin terminal window, which breaks the agent's ability to see output and chain commands.
+
+1. **Settings → System → For developers**
+2. Toggle **Enable sudo** on
+3. Set sudo mode to **Inline** (NOT "New window")
+4. Optional: also toggle **Developer Mode** on (unblocks unsigned scripts, sym-links, WSL features)
+
+With inline `sudo` enabled, the agent can run `sudo <command>` and see the output in the same shell. You accept one UAC prompt per session and the rest is seamless.
+
+Without `sudo`, the agent has to write `.ps1` files to your Desktop and ask you to manually run them in an admin terminal — usable but slower and less interactive.
 
 ## Suggested prompt sequence
 

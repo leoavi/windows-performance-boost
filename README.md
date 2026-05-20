@@ -10,12 +10,13 @@ Tested on Windows 11 24H2 on a Dell laptop (Core 7 150U, 16 GB RAM, NVMe SSD), b
 
 ## What it does
 
-Three scripts, all in [`scripts/`](./scripts):
+Four scripts, all in [`scripts/`](./scripts):
 
 | Script | Purpose |
 |---|---|
 | [`add-defender-exclusions.ps1`](./scripts/add-defender-exclusions.ps1) | Adds ~40 folder, ~30 process and 16 extension exclusions to Microsoft Defender, plus engine tweaks to minimize I/O overhead. Effectively narrows Defender's active surface to `%USERPROFILE%\Downloads` and new processes. |
-| [`tune-performance.ps1`](./scripts/tune-performance.ps1) | Disables SysMain, Fast Startup, telemetry services (DiagTrack, dmwappushservice), 16+ junk scheduled tasks, Edge background tasks. Activates Ultimate Performance power plan. Pins pagefile to 4-8 GB. Enables HAGS. |
+| [`tune-performance.ps1`](./scripts/tune-performance.ps1) | Disables SysMain, Fast Startup, telemetry services (DiagTrack, dmwappushservice), 16+ junk scheduled tasks, Edge background tasks, NTFS last-access timestamps, WinSAT. Activates Ultimate Performance power plan. Pins pagefile to 4-8 GB. Enables HAGS. |
+| [`deep-clean.ps1`](./scripts/deep-clean.ps1) | Recovers disk space — DISM component store cleanup, Temp folders, Windows Update cache, Delivery Optimization cache, crash dumps, thumbnail cache, Recycle Bin. Run periodically (monthly/quarterly). |
 | [`revert-all.ps1`](./scripts/revert-all.ps1) | Reverts everything to Windows defaults. |
 
 ### Performance changes at a glance
@@ -46,6 +47,36 @@ The default Defender posture is "scan everything everywhere, all the time". This
 
 ---
 
+## Recommended setup before running
+
+### Enable `sudo` (Windows 11 24H2+)
+
+Highly recommended. Lets you run elevated commands from any terminal **without spawning a new admin window**, which is essential if you want to drive this with an AI agent (Claude Code, Cursor, Codex, etc.) or just keep your shell history coherent.
+
+1. **Settings → System → For developers**
+2. Toggle **Enable sudo** on
+3. Set sudo mode to **Inline** (not "New window" — inline captures stdout in your current shell)
+
+After enabling, you can run any command elevated like this:
+
+```powershell
+sudo .\scripts\tune-performance.ps1
+```
+
+The first call triggers a UAC prompt; once approved, subsequent calls in the same session are seamless.
+
+### Enable Developer Mode (optional but useful)
+
+Same settings page, toggle **Developer Mode** on. Unlocks:
+
+- Running unsigned PowerShell scripts more easily (no `Set-ExecutionPolicy` dance)
+- Symbolic links without admin
+- Better integration with Windows Subsystem for Linux (WSL) if you use it
+
+If you don't enable it, you'll need `Set-ExecutionPolicy -Scope Process Bypass -Force` once per PowerShell session to run the scripts.
+
+---
+
 ## Quickstart
 
 ### 1. Clone
@@ -61,10 +92,21 @@ cd windows-performance-boost
 
 ### 3. Run the scripts
 
+With `sudo` enabled (recommended):
+
+```powershell
+sudo .\scripts\add-defender-exclusions.ps1
+sudo .\scripts\tune-performance.ps1
+sudo .\scripts\deep-clean.ps1   # optional, recovers disk space
+```
+
+Without `sudo` — open PowerShell as Admin and run:
+
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass -Force
 .\scripts\add-defender-exclusions.ps1
 .\scripts\tune-performance.ps1
+.\scripts\deep-clean.ps1   # optional
 ```
 
 ### 4. Manual step — clean up startup apps

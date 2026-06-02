@@ -35,6 +35,19 @@ Four scripts, all in [`scripts/`](./scripts):
 - **Edge background update tasks disabled**, services demoted to Manual.
 - **WSAIFabricSvc (on-device AI) → Manual**, **Windows Recall blocked** via preventive policy (no-op on non-Copilot+ hardware, blocks future activation), and residual **targeted ads / activity history / app-launch tracking** toggles off — all reversible, zero UX impact.
 
+### Deliberately excluded — popular tweaks that are placebo or harmful
+
+These circulate widely in "Windows optimization" guides and YouTube videos. An adversarial research pass (24 sources, claims confirmed/killed by majority vote against primary docs and reputable debloaters) found them to be measurably useless or actively harmful, so this repo intentionally does **not** apply them:
+
+- **`DisablePagingExecutive` / disabling the pagefile** — no measurable benefit; can *degrade* performance or trigger OOM on a 16 GB machine. The fixed pagefile this repo sets is the correct approach; don't disable it.
+- **`NetworkThrottlingIndex`, `SystemResponsiveness`, `Win32PrioritySeparation`** — not used by any reputable debloater (winutil applies none of them). The "unlocks ~15 MB/s" claim was refuted: the MMCSS packet cap only applies while a multimedia stream is active, not to general networking.
+- **Disabling Nagle's algorithm (`TcpNoDelay`)** — only helps chatty interactive RDP/SSH; modern dev libraries already set `TCP_NODELAY` per-socket, so it's placebo for local dev.
+- **Disabling Windows Search (`WSearch`)** — *degrades* file access and search speed. Do **not** disable on a dev machine.
+- **Removing built-in Appx apps for speed** — near-zero measurable RAM/CPU gain (Tiny11 vs vanilla benchmarks fall within margin of error). Worth doing for disk/privacy, not performance.
+- **`DISM /Remove` of optional features to reclaim disk** — on client Windows the payload is retained for Push-button reset, so it frees no meaningful space (per Microsoft Learn). Disabling a feature that runs background services (e.g. Hyper-V) has runtime value; removing one "to clean disk" does not.
+
+**Rule of thumb:** once the changes in this repo are applied, the biggest remaining risk to performance is **regression from over-tweaking**, not a missing tweak. The "make Windows as fast as Linux" gap that remains is architectural (filesystem, process model, real-time AV), not something another registry key closes.
+
 ### Defender impact
 
 The default Defender posture is "scan everything everywhere, all the time". This profile inverts that:

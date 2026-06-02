@@ -15,7 +15,7 @@ Four scripts, all in [`scripts/`](./scripts):
 | Script | Purpose |
 |---|---|
 | [`add-defender-exclusions.ps1`](./scripts/add-defender-exclusions.ps1) | Adds ~40 folder, ~30 process and 16 extension exclusions to Microsoft Defender, plus engine tweaks to minimize I/O overhead. Effectively narrows Defender's active surface to `%USERPROFILE%\Downloads` and new processes. |
-| [`tune-performance.ps1`](./scripts/tune-performance.ps1) | Disables SysMain, Fast Startup, telemetry services (DiagTrack, dmwappushservice), 16+ junk scheduled tasks, Edge background tasks, NTFS last-access timestamps, WinSAT. Activates Ultimate Performance power plan. Pins pagefile to 8-16 GB. Enables HAGS. |
+| [`tune-performance.ps1`](./scripts/tune-performance.ps1) | Disables SysMain, Fast Startup, telemetry services (DiagTrack, dmwappushservice), 16+ junk scheduled tasks, Edge background tasks, NTFS last-access timestamps, WinSAT. Activates Ultimate Performance power plan. Pins pagefile to 8-16 GB. Enables HAGS. Sets the WSAIFabricSvc AI service to Manual, applies a preventive Recall block, and disables residual telemetry/tracking toggles (ads, activity history, app-launch tracking). |
 | [`deep-clean.ps1`](./scripts/deep-clean.ps1) | Recovers disk space — DISM component store cleanup, Temp folders, Windows Update cache, Delivery Optimization cache, crash dumps, thumbnail cache, Recycle Bin. Run periodically (monthly/quarterly). |
 | [`revert-all.ps1`](./scripts/revert-all.ps1) | Reverts everything to Windows defaults. |
 
@@ -33,6 +33,7 @@ Four scripts, all in [`scripts/`](./scripts):
 - **CEIP, Compatibility Appraiser, OneDrive Reporting** — disabled.
 - **Defender MAPS cloud reporting off**, sample submission set to "never".
 - **Edge background update tasks disabled**, services demoted to Manual.
+- **WSAIFabricSvc (on-device AI) → Manual**, **Windows Recall blocked** via preventive policy (no-op on non-Copilot+ hardware, blocks future activation), and residual **targeted ads / activity history / app-launch tracking** toggles off — all reversible, zero UX impact.
 
 ### Defender impact
 

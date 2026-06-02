@@ -174,7 +174,48 @@ try {
 } catch { Write-Host "  FAIL $($_.Exception.Message)" -ForegroundColor Red }
 
 # =============================================================================
-# 11. List startup programs (informational only)
+# 11. Residual AI service + telemetry/tracking toggles
+#     (net-new over the telemetry *services* in #2; zero UX impact, all reversible)
+# =============================================================================
+Write-Host ""
+Write-Host "==> Disabling residual AI service + telemetry/tracking toggles" -ForegroundColor Cyan
+
+# WSAIFabricSvc: on-device AI inference service (Search/Settings). Manual = on-demand only.
+# Exists on build >= 22621 regardless of Copilot+ status.
+try {
+  Set-Service -Name WSAIFabricSvc -StartupType Manual -ErrorAction Stop
+  Write-Host "  OK service WSAIFabricSvc -> Manual" -ForegroundColor Green
+} catch { Write-Host "  SKIP WSAIFabricSvc ($($_.Exception.Message))" -ForegroundColor DarkGray }
+
+# Windows Recall: preventive policy. No-op on non-Copilot+ hardware (e.g. Meteor Lake),
+# but blocks future activation via feature update.
+try {
+  New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI" -Force | Out-Null
+  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI" `
+    -Name DisableAIDataAnalysis -Value 1 -Type DWord -Force
+  Write-Host "  OK Recall disabled (DisableAIDataAnalysis=1)" -ForegroundColor Green
+} catch { Write-Host "  FAIL Recall -> $($_.Exception.Message)" -ForegroundColor Red }
+
+# Activity history (HKLM policy)
+try {
+  New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Force | Out-Null
+  Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" `
+    -Name PublishUserActivities -Value 0 -Type DWord -Force
+  Write-Host "  OK Activity history disabled (PublishUserActivities=0)" -ForegroundColor Green
+} catch { Write-Host "  FAIL activity history -> $($_.Exception.Message)" -ForegroundColor Red }
+
+# Targeted ads + app-launch tracking (HKCU, user-scoped)
+try {
+  New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Force | Out-Null
+  Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo" `
+    -Name Enabled -Value 0 -Type DWord -Force
+  Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" `
+    -Name Start_TrackProgs -Value 0 -Type DWord -Force
+  Write-Host "  OK Targeted ads + app-launch tracking disabled" -ForegroundColor Green
+} catch { Write-Host "  FAIL ads/tracking -> $($_.Exception.Message)" -ForegroundColor Red }
+
+# =============================================================================
+# 12. List startup programs (informational only)
 # =============================================================================
 Write-Host ""
 Write-Host "==> Current startup programs (disable manually with Ctrl+Shift+Esc):" -ForegroundColor Cyan

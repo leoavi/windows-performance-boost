@@ -9,6 +9,7 @@
 #   - Disables HAGS
 #   - Re-enables Edge update services
 #   - Re-enables all disabled scheduled tasks
+#   - Restores AI service (WSAIFabricSvc) and telemetry/tracking toggles
 #
 # Run as Administrator.
 # =============================================================================
@@ -128,6 +129,17 @@ foreach ($t in $disabledTasks) {
     Write-Host "  OK   $($t.TaskPath)$($t.TaskName)" -ForegroundColor Green
   } catch { Write-Host "  FAIL $($t.TaskName)" -ForegroundColor Red }
 }
+
+# =============================================================================
+# 9. Restore residual AI service + telemetry/tracking toggles
+# =============================================================================
+Write-Host ""
+Write-Host "==> Restoring AI service + telemetry/tracking toggles" -ForegroundColor Cyan
+try { Set-Service -Name WSAIFabricSvc -StartupType Automatic -EA Stop; Write-Host "  OK WSAIFabricSvc -> Automatic" -ForegroundColor Green } catch { Write-Host "  SKIP WSAIFabricSvc (not found)" -ForegroundColor DarkGray }
+try { Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI" -Name DisableAIDataAnalysis -Value 0 -Type DWord -Force; Write-Host "  OK Recall policy cleared (DisableAIDataAnalysis=0)" -ForegroundColor Green } catch {}
+try { Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name PublishUserActivities -Value 1 -Type DWord -Force; Write-Host "  OK Activity history restored" -ForegroundColor Green } catch {}
+try { Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\AdvertisingInfo" -Name Enabled -Value 1 -Type DWord -Force; Write-Host "  OK Targeted ads restored" -ForegroundColor Green } catch {}
+try { Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name Start_TrackProgs -Value 1 -Type DWord -Force; Write-Host "  OK App-launch tracking restored" -ForegroundColor Green } catch {}
 
 Write-Host ""
 Write-Host "==> Revert complete. REBOOT to apply pagefile and HAGS changes." -ForegroundColor Green

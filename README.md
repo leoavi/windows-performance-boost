@@ -15,7 +15,7 @@ Four scripts, all in [`scripts/`](./scripts):
 | Script | Purpose |
 |---|---|
 | [`add-defender-exclusions.ps1`](./scripts/add-defender-exclusions.ps1) | Adds ~40 folder, ~30 process and 16 extension exclusions to Microsoft Defender, plus engine tweaks to minimize I/O overhead. Effectively narrows Defender's active surface to `%USERPROFILE%\Downloads` and new processes. |
-| [`tune-performance.ps1`](./scripts/tune-performance.ps1) | Disables SysMain, Fast Startup, telemetry services (DiagTrack, dmwappushservice), 16+ junk scheduled tasks, Edge background tasks, NTFS last-access timestamps, WinSAT. Activates Ultimate Performance power plan. Pins pagefile to 4-8 GB. Enables HAGS. |
+| [`tune-performance.ps1`](./scripts/tune-performance.ps1) | Disables SysMain, Fast Startup, telemetry services (DiagTrack, dmwappushservice), 16+ junk scheduled tasks, Edge background tasks, NTFS last-access timestamps, WinSAT. Activates Ultimate Performance power plan. Pins pagefile to 8-16 GB. Enables HAGS. |
 | [`deep-clean.ps1`](./scripts/deep-clean.ps1) | Recovers disk space — DISM component store cleanup, Temp folders, Windows Update cache, Delivery Optimization cache, crash dumps, thumbnail cache, Recycle Bin. Run periodically (monthly/quarterly). |
 | [`revert-all.ps1`](./scripts/revert-all.ps1) | Reverts everything to Windows defaults. |
 
@@ -24,7 +24,7 @@ Four scripts, all in [`scripts/`](./scripts):
 - **SysMain disabled** — Superfetch wastes I/O on SSDs.
 - **Fast Startup off** — root cause of many Windows Update and driver bugs; saves only 2-3s of boot time anyway.
 - **HAGS on** — GPU schedules its own work, freeing CPU cycles.
-- **Pagefile fixed 4096-8192 MB** — no dynamic resize, less SSD wear.
+- **Pagefile fixed 8192-16384 MB** — sized for a 16 GB machine that was exhausting an 8 GB cap (observed pagefile peak ~8.6 GB). Less SSD wear than fully dynamic.
 - **Ultimate Performance power plan** — disables aggressive throttling on laptops.
 
 ### Privacy changes at a glance

@@ -6,7 +6,7 @@
 #   - Disabling Fast Startup (causes Windows Update / driver bugs)
 #   - Disabling telemetry services (DiagTrack, dmwappushservice)
 #   - Activating the hidden "Ultimate Performance" power plan
-#   - Fixing the pagefile to 4096-8192 MB (via registry, applies after reboot)
+#   - Fixing the pagefile to 8192-16384 MB (via registry, applies after reboot)
 #   - Enabling HAGS (Hardware-accelerated GPU Scheduling)
 #   - Disabling Edge background scheduled tasks and demoting Edge update services
 #   - Disabling ~16 telemetry/junk scheduled tasks
@@ -72,10 +72,10 @@ try {
 } catch { Write-Host "  FAIL $($_.Exception.Message)" -ForegroundColor Red }
 
 # =============================================================================
-# 5. Pagefile: fixed 4096-8192 MB (registry approach, applies after reboot)
+# 5. Pagefile: fixed 8192-16384 MB (registry approach, applies after reboot)
 # =============================================================================
 Write-Host ""
-Write-Host "==> Setting pagefile to fixed 4096-8192 MB" -ForegroundColor Cyan
+Write-Host "==> Setting pagefile to fixed 8192-16384 MB" -ForegroundColor Cyan
 try {
   # Disable automatic management
   $cs = Get-CimInstance Win32_ComputerSystem
@@ -84,7 +84,7 @@ try {
   }
   # Write directly to registry (CIM has type quirks)
   Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" `
-    -Name PagingFiles -Value "C:\pagefile.sys 4096 8192" -Type MultiString -Force
+    -Name PagingFiles -Value "C:\pagefile.sys 8192 16384" -Type MultiString -Force
   Write-Host "  OK Pagefile set (applies after reboot)" -ForegroundColor Green
 } catch { Write-Host "  FAIL $($_.Exception.Message)" -ForegroundColor Red }
 
